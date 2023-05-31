@@ -1,5 +1,19 @@
 # Inpainting with Generative adversarial network
 
+## Introduction
+
+This is a Pytorch implementation for Inpainting with Generative adversarial network.
+
+- you can train models on your own datasets
+- in preprocessing.ipynb you can find the code for preparing your dataset (add masks to the images either strategically or randomly)
+- you can test the model on your own datasets
+- you can use the pretrained model provided in the pretrained_models folder
+- you can use any any images for testing, just make sure to change the path in the code accordingly 
+
+## Overview
+
+![overview](./result_images/overview.png)
+
 ## Environment Setup
 Open anaconda prompt and cd to the folder where you have your environment.yml file
 - uncomment the line of the environment_name you want to create according to your resources (GPU or CPU)

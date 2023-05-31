@@ -13,6 +13,8 @@ from skimage.color import rgb2ycbcr
 from skimage.measure import compare_psnr
 from tqdm import tqdm
 
+from matplotlib import pyplot as plt
+
 def train(args):
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -225,18 +227,42 @@ def test(args):
 
             bs, c, h, w = lr.size()
             gt = gt[:, :, : h * args.scale, : w *args.scale]
+            lr = lr[:, :, : h * args.scale, : w *args.scale]
 
             output, _ = generator(lr)
 
             output = output[0].cpu().numpy()
             output = np.clip(output, -1.0, 1.0)
             gt = gt[0].cpu().numpy()
+            lr = lr[0].cpu().numpy()
 
             output = (output + 1.0) / 2.0
             gt = (gt + 1.0) / 2.0
+            lr = (lr + 1.0) / 2.0
 
             output = output.transpose(1,2,0)
             gt = gt.transpose(1,2,0)
+            lr = lr.transpose(1,2,0)
+
+            mask = np.zeros_like(output)
+            mask = gt - lr
+            mask[mask != 0.0] = 1.0
+            # mask[mask == 0.0] = 0.0
+
+            # print('mask shape : ', mask.shape)
+            # print('mask :',mask[20:30, 20:30, 0])
+            # print('output :',output[20:30, 20:30, 0])
+            print('gt :',gt[20:30, 0:10, 0])
+            print('lr :',lr[20:30, 0:10, 0])
+            output = output * mask + gt * (1.0 - mask)
+
+            # _ , axes = plt.subplots(2,2,figsize=(15, 15))
+            # axes[0,0].imshow(lr)
+            # axes[0,1].imshow(gt)
+            # axes[1,0].imshow(mask)
+            # axes[1,1].imshow(output)
+
+            # plt.show()
 
             y_output = rgb2ycbcr(output)[args.scale:-args.scale, args.scale:-args.scale, :1]
             y_gt = rgb2ycbcr(gt)[args.scale:-args.scale, args.scale:-args.scale, :1]
